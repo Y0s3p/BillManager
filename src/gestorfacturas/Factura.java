@@ -34,8 +34,8 @@ public class Factura extends javax.swing.JFrame {
     DatabaseMetaData metadata;
     ResultSetMetaData rsmetadata;
     private DefaultTableModel facturas;
-    public String cliente;
-    public String nfac;
+    public int codcliente;
+    public int factura;
     
     /**
      * Creates new form Factura
@@ -403,16 +403,27 @@ public class Factura extends javax.swing.JFrame {
     private void addBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBTActionPerformed
         // TODO add your handling code here:
         
-        cliente = clientesCB.getSelectedItem().toString();
-        int factura = Integer.parseInt(nFacturaTF.getText());
+        String cliente = clientesCB.getSelectedItem().toString();
+        factura = Integer.parseInt(nFacturaTF.getText());
+       
         
         try{
             
             st = con.createStatement();
+            rst = st.executeQuery("SELECT CODIGO FROM CLIENTES WHERE NOMBRE LIKE '"+cliente+"'");
+            st = con.createStatement();
             rs = st.executeQuery("SELECT NFACTURA FROM view_fact_clien WHERE NFACTURA = "+factura);
 
+            while(rst.next()){
+                
+                codcliente = rst.getInt(1);
+                
+            }
+            
+            rst.close();
+            
             if (rs.next() == false) {    
-                new DetalleFactura(con,cliente).setVisible(true);
+                new DetalleFactura(con,codcliente,factura).setVisible(true);
             
             }else{
                 

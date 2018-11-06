@@ -8,10 +8,13 @@ package gestorfacturas;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -21,7 +24,8 @@ import javax.swing.table.DefaultTableModel;
 public class DetalleFactura extends javax.swing.JFrame {
 
     public Connection con;
-    public String clien;
+    public int clien;
+    public int nfac;
     Statement st;
     PreparedStatement ps;
     CallableStatement cs;
@@ -34,9 +38,10 @@ public class DetalleFactura extends javax.swing.JFrame {
     /**
      * Creates new form DetalleFactura
      */
-    public DetalleFactura(Connection connection, String cliente) {
+    public DetalleFactura(Connection connection, int cliente, int nfac) {
         this.con=connection;
         this.clien=cliente;
+        this.nfac=nfac;
         initComponents();
         this.articulos = (DefaultTableModel) articulosTB.getModel();
         valoresIniciales();
@@ -49,12 +54,14 @@ public class DetalleFactura extends javax.swing.JFrame {
     public void valoresIniciales(){
         
         articlePanel.setVisible(false);
-        articulosTB.setVisible(false);
+        articulosTB.setEnabled(false);
         
-        clienteTF.setText(clien);
+        clienteTF.setText(Integer.toString(clien));
         clienteTF.setEnabled(false);
         
-        
+        n_FacturaTF.setText( Integer.toString(nfac));
+        n_FacturaTF.setEnabled(false);
+   
     }
 
     /**
@@ -72,7 +79,7 @@ public class DetalleFactura extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         n_FacturaTF = new javax.swing.JTextField();
         fechaTF = new javax.swing.JTextField();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        pagadaCB = new javax.swing.JCheckBox();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         clienteTF = new javax.swing.JTextField();
@@ -121,6 +128,11 @@ public class DetalleFactura extends javax.swing.JFrame {
         aceptarBT.setFont(new java.awt.Font("Consolas", 1, 18)); // NOI18N
         aceptarBT.setText("ACEPTAR");
         aceptarBT.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        aceptarBT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aceptarBTActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout MainPanelLayout = new javax.swing.GroupLayout(MainPanel);
         MainPanel.setLayout(MainPanelLayout);
@@ -132,7 +144,7 @@ public class DetalleFactura extends javax.swing.JFrame {
                     .addGroup(MainPanelLayout.createSequentialGroup()
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jCheckBox1)
+                        .addComponent(pagadaCB)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(MainPanelLayout.createSequentialGroup()
                         .addGroup(MainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -179,7 +191,7 @@ public class DetalleFactura extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(MainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jCheckBox1))
+                    .addComponent(pagadaCB))
                 .addContainerGap(47, Short.MAX_VALUE))
         );
 
@@ -293,6 +305,56 @@ public class DetalleFactura extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void aceptarBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptarBTActionPerformed
+        // TODO add your handling code here:
+        
+        String fecfacturas;
+        int total;
+        String pagada;
+        boolean checked = pagadaCB.isSelected();
+        
+        fecfacturas = fechaTF.getText();
+        
+        if(totalTF.getText().equals("")){
+            
+            total = 0;
+            
+        }else{
+            
+            total = Integer.parseInt(totalTF.getText());
+            
+        }
+        
+        if(checked){
+            pagada = "S";
+        }else{
+            pagada = "N";
+        }
+        
+        try{
+            
+            if(fecfacturas.equals("") || total < 0 || (pagada.equals("N") && total == 0)){
+                
+                JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos o asegurese que estan correctos");
+                
+            }else{
+                
+                st = con.createStatement();
+                rst = st.executeQuery("INSERT INTO FACTURAS VALUES("+nfac+",TO_DATE('"+fecfacturas+"'),"+clien+","+total+",'"+pagada+"')");
+                articlePanel.setVisible(true);
+                articulosTB.setEnabled(true);
+                
+                
+            }
+
+        }catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        
+        
+    }//GEN-LAST:event_aceptarBTActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -341,7 +403,6 @@ public class DetalleFactura extends javax.swing.JFrame {
     private javax.swing.JTextField dtoTF;
     private javax.swing.JButton editBT;
     private javax.swing.JTextField fechaTF;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -352,6 +413,7 @@ public class DetalleFactura extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField n_FacturaTF;
+    private javax.swing.JCheckBox pagadaCB;
     private javax.swing.JTextField totalTF;
     // End of variables declaration//GEN-END:variables
 }
