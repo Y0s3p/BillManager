@@ -42,7 +42,7 @@
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="articlePanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Component id="jScrollPane1" pref="243" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" pref="242" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -238,18 +238,30 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="articuloCB" min="-2" pref="150" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="cantidadTF" min="-2" pref="150" max="-2" attributes="0"/>
-                  <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Component id="dtoTF" min="-2" pref="150" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <EmptySpace min="-2" pref="330" max="-2" attributes="0"/>
+                          <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="cantidadTF" min="-2" pref="150" max="-2" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="dtoTF" min="-2" pref="150" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jLabel6" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel9" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="descripcionTF" min="-2" pref="150" max="-2" attributes="0"/>
+                              <Component id="articuloCB" min="-2" pref="150" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
                   <EmptySpace max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="1" max="-2" attributes="0">
                       <Component id="deleteBT" max="32767" attributes="0"/>
@@ -267,6 +279,9 @@
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel6" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
                       <Component id="articuloCB" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel7" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
                       <Component id="cantidadTF" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
                       <Component id="jLabel8" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
@@ -280,7 +295,11 @@
                   <EmptySpace pref="7" max="32767" attributes="0"/>
                   <Component id="deleteBT" min="-2" pref="25" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="editBT" min="-2" pref="25" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="editBT" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                      <Component id="jLabel9" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                      <Component id="descripcionTF" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
+                  </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -304,6 +323,10 @@
               <StringArray count="0"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="articuloCBMouseReleased"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="articuloCBActionPerformed"/>
+          </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
@@ -345,6 +368,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="+"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addBTActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="deleteBT">
           <Properties>
@@ -353,6 +379,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="-"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteBTActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="editBT">
           <Properties>
@@ -360,6 +389,24 @@
               <Font name="Consolas" size="18" style="1"/>
             </Property>
             <Property name="text" type="java.lang.String" value="EDITAR"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="editBTActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel9">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Consolas" size="18" style="1"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Descripcion"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="descripcionTF">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Consolas" size="18" style="1"/>
+            </Property>
           </Properties>
         </Component>
       </SubComponents>
@@ -375,27 +422,24 @@
           <Properties>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
-                <LineBorder thickness="2"/>
+                <LineBorder thickness="2">
+                  <Color PropertyName="color" blue="0" green="cc" red="0" type="rgb"/>
+                </LineBorder>
               </Border>
             </Property>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="1" rowCount="0">
-                <Column editable="true" title="TABLA" type="java.lang.Object"/>
-              </Table>
+              <Table columnCount="0" rowCount="0"/>
             </Property>
             <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
-              <TableColumnModel selectionModel="0">
-                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                  <Title/>
-                  <Editor/>
-                  <Renderer/>
-                </Column>
-              </TableColumnModel>
+              <TableColumnModel selectionModel="0"/>
             </Property>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="articulosTBMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

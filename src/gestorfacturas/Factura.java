@@ -36,6 +36,7 @@ public class Factura extends javax.swing.JFrame {
     private DefaultTableModel facturas;
     public int codcliente;
     public int factura;
+    public boolean editable;
     
     /**
      * Creates new form Factura
@@ -224,6 +225,11 @@ public class Factura extends javax.swing.JFrame {
         });
 
         editBT.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit_opt.png"))); // NOI18N
+        editBT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editBTActionPerformed(evt);
+            }
+        });
 
         filterBT.setIcon(new javax.swing.ImageIcon(getClass().getResource("/filter_opt.png"))); // NOI18N
         filterBT.addActionListener(new java.awt.event.ActionListener() {
@@ -320,47 +326,49 @@ public class Factura extends javax.swing.JFrame {
     private void deleteBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBTActionPerformed
         // TODO add your handling code here:
         
-        int selectedRow = facturasTB.getSelectedRow();
+        try{
+            
+            int selectedRow = facturasTB.getSelectedRow();
         
-        String pagada = facturasTB.getValueAt(selectedRow, 4).toString();
+            String pagada = facturasTB.getValueAt(selectedRow, 4).toString();
         
-        int nfac = Integer.parseInt(facturasTB.getValueAt(selectedRow, 0).toString());
         
-        if(pagada.equals("S")){
+        
+            if(pagada.equals("S")){
+
+                JOptionPane.showMessageDialog(null, "La factura esta pagada, por lo tanto no se puede borrar");
+
+            }else{
+
+                    int nfac = Integer.parseInt(facturasTB.getValueAt(selectedRow, 0).toString());
+
+                    st = con.createStatement();
+                    rs = st.executeQuery("DELETE FROM FACTURAS WHERE NFACTURA = "+nfac);
+
+                    rs.close();
+
+                    refrescarInfo();
+
+                }
             
-            JOptionPane.showMessageDialog(null, "La factura esta pagada, por lo tanto no se puede borrar");
-            
-        }else{
-            
-            
-            try {
-                
-                st = con.createStatement();
-                rs = st.executeQuery("DELETE FROM FACTURAS WHERE NFACTURA = "+nfac);
-                
-                rs.close();
-                
-                refrescarInfo();
-                
-            } catch (SQLException ex) {
+        }catch (SQLException ex) {
                 Logger.getLogger(Factura.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            
-        }
-        
-        
+            }catch(ArrayIndexOutOfBoundsException e){
+                
+                JOptionPane.showMessageDialog(null, "Seleccione la fila que desee borrar");
+                return;
+            } 
     }//GEN-LAST:event_deleteBTActionPerformed
 
     private void filterBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterBTActionPerformed
         // TODO add your handling code here:
-        
-        facturas.setRowCount(0);
-        
-        String nfactura = nFacturaTF.getText();
-        String cliente = clientesCB.getSelectedItem().toString();
-        
+
         try{
+            
+            facturas.setRowCount(0);
+        
+            String nfactura = nFacturaTF.getText();
+            String cliente = clientesCB.getSelectedItem().toString();
             
             st = con.createStatement();
             rs = st.executeQuery("SELECT * FROM view_fact_clien WHERE NFACTURA = "+nfactura+" OR NOMBRE LIKE '"+cliente+"'");
@@ -389,6 +397,11 @@ public class Factura extends javax.swing.JFrame {
             
         }catch (SQLException ex) {
             ex.printStackTrace();
+        }catch(NullPointerException e){
+            
+            JOptionPane.showMessageDialog(null, "No hay datos para realizar el filtrado");
+            refrescarInfo();
+            return;
         }
         
         
@@ -403,11 +416,11 @@ public class Factura extends javax.swing.JFrame {
     private void addBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBTActionPerformed
         // TODO add your handling code here:
         
-        String cliente = clientesCB.getSelectedItem().toString();
-        factura = Integer.parseInt(nFacturaTF.getText());
-       
-        
         try{
+            
+            String cliente = clientesCB.getSelectedItem().toString();
+            factura = Integer.parseInt(nFacturaTF.getText());
+            editable = false;
             
             st = con.createStatement();
             rst = st.executeQuery("SELECT CODIGO FROM CLIENTES WHERE NOMBRE LIKE '"+cliente+"'");
@@ -422,21 +435,81 @@ public class Factura extends javax.swing.JFrame {
             
             rst.close();
             
-            if (rs.next() == false) {    
-                new DetalleFactura(con,codcliente,factura).setVisible(true);
+            if (rs.next() == true) { 
+                
+                JOptionPane.showMessageDialog(null, "La factura ya existe o seleccione los datos correctaente");
             
             }else{
                 
-                JOptionPane.showMessageDialog(null, "La factura ya existe");
+                new DetalleFactura(con,codcliente,factura,editable).setVisible(true);
+                
             } 
             
             rs.close();
             
         }catch (SQLException ex) {
             ex.printStackTrace();
+        }catch(NullPointerException e){
+            
+            JOptionPane.showMessageDialog(null, "La factura ya existe o seleccione los datos correctaente");
+            return;
         }
         
     }//GEN-LAST:event_addBTActionPerformed
+
+    private void editBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBTActionPerformed
+        // TODO add your handling code here:
+        
+        try{
+            
+            String cliente = clientesCB.getSelectedItem().toString();
+            factura = Integer.parseInt(nFacturaTF.getText());
+            editable = true;
+            
+            st = con.createStatement();
+            rst = st.executeQuery("SELECT CODIGO FROM CLIENTES WHERE NOMBRE LIKE '"+cliente+"'");
+            st = con.createStatement();
+            rs = st.executeQuery("SELECT NFACTURA FROM view_fact_clien WHERE NFACTURA = "+factura);
+
+            while(rst.next()){
+                
+                codcliente = rst.getInt(1);
+                
+            }
+            
+            rst.close();
+            
+            
+            int selectedRow = facturasTB.getSelectedRow();
+            String datoFila = "";
+            //Si existe una fila seleccionada enonces:
+            if(selectedRow>=0){
+                
+                //aqui recogemos el valor de dicho valor en la fila seleccionada y columna 0
+                datoFila = facturas.getValueAt(selectedRow, 4).toString();  
+            }
+            
+            if(datoFila.equals("S")){
+                
+                JOptionPane.showMessageDialog(null, "No se puede editar una factura que esta pagada");
+                
+            }else{
+                
+                new DetalleFactura(con,codcliente,factura,editable).setVisible(true);
+                
+            }
+
+            rs.close();
+            
+        }catch (SQLException ex) {
+            ex.printStackTrace();
+        }catch(NullPointerException e){
+            
+            JOptionPane.showMessageDialog(null, "Seleccione los datos correctaente");
+            return;
+        }
+        
+    }//GEN-LAST:event_editBTActionPerformed
 
     /**
      * @param args the command line arguments

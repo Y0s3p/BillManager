@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -26,6 +28,7 @@ public class DetalleFactura extends javax.swing.JFrame {
     public Connection con;
     public int clien;
     public int nfac;
+    public boolean edit;
     Statement st;
     PreparedStatement ps;
     CallableStatement cs;
@@ -38,13 +41,16 @@ public class DetalleFactura extends javax.swing.JFrame {
     /**
      * Creates new form DetalleFactura
      */
-    public DetalleFactura(Connection connection, int cliente, int nfac) {
+    public DetalleFactura(Connection connection, int cliente, int nfac,boolean editar) {
         this.con=connection;
         this.clien=cliente;
         this.nfac=nfac;
+        this.edit=editar;
         initComponents();
         this.articulos = (DefaultTableModel) articulosTB.getModel();
         valoresIniciales();
+        editValues();
+        
     }
 
     private DetalleFactura() {
@@ -61,7 +67,7 @@ public class DetalleFactura extends javax.swing.JFrame {
         
         n_FacturaTF.setText( Integer.toString(nfac));
         n_FacturaTF.setEnabled(false);
-   
+        
     }
 
     /**
@@ -95,6 +101,8 @@ public class DetalleFactura extends javax.swing.JFrame {
         addBT = new javax.swing.JButton();
         deleteBT = new javax.swing.JButton();
         editBT = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
+        descripcionTF = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         articulosTB = new javax.swing.JTable();
 
@@ -201,6 +209,16 @@ public class DetalleFactura extends javax.swing.JFrame {
         jLabel6.setText("ARTICULO");
 
         articuloCB.setFont(new java.awt.Font("Consolas", 1, 18)); // NOI18N
+        articuloCB.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                articuloCBMouseReleased(evt);
+            }
+        });
+        articuloCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                articuloCBActionPerformed(evt);
+            }
+        });
 
         jLabel7.setFont(new java.awt.Font("Consolas", 1, 18)); // NOI18N
         jLabel7.setText("CANTIDAD");
@@ -214,30 +232,57 @@ public class DetalleFactura extends javax.swing.JFrame {
 
         addBT.setFont(new java.awt.Font("Consolas", 1, 18)); // NOI18N
         addBT.setText("+");
+        addBT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addBTActionPerformed(evt);
+            }
+        });
 
         deleteBT.setFont(new java.awt.Font("Consolas", 1, 18)); // NOI18N
         deleteBT.setText("-");
+        deleteBT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteBTActionPerformed(evt);
+            }
+        });
 
         editBT.setFont(new java.awt.Font("Consolas", 1, 18)); // NOI18N
         editBT.setText("EDITAR");
+        editBT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editBTActionPerformed(evt);
+            }
+        });
+
+        jLabel9.setFont(new java.awt.Font("Consolas", 1, 18)); // NOI18N
+        jLabel9.setText("Descripcion");
+
+        descripcionTF.setFont(new java.awt.Font("Consolas", 1, 18)); // NOI18N
 
         javax.swing.GroupLayout articlePanelLayout = new javax.swing.GroupLayout(articlePanel);
         articlePanel.setLayout(articlePanelLayout);
         articlePanelLayout.setHorizontalGroup(
             articlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, articlePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel6)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(articuloCB, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(cantidadTF, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel8)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(dtoTF, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(articlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(articlePanelLayout.createSequentialGroup()
+                        .addGap(330, 330, 330)
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(cantidadTF, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dtoTF, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(articlePanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(articlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel9))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(articlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(descripcionTF, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(articuloCB, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(articlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(deleteBT, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -251,7 +296,9 @@ public class DetalleFactura extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(articlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(articuloCB, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(articuloCB, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(articlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cantidadTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -263,19 +310,27 @@ public class DetalleFactura extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
                 .addComponent(deleteBT, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(editBT, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(articlePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(editBT, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(descripcionTF, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        articulosTB.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        articulosTB.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 204, 0), 2));
         articulosTB.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "TABLA"
+
             }
         ));
+        articulosTB.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                articulosTBMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(articulosTB);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -298,13 +353,157 @@ public class DetalleFactura extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(articlePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void editValues(){
+        
+        if(edit){
+            
+            try {
+            st = con.createStatement();
+            rs = st.executeQuery("SELECT FECFACTURA,TOTAL FROM FACTURAS WHERE NFACTURA = "+nfac);
+            rsmetadata = rs.getMetaData();
+            int columnCount = rsmetadata.getColumnCount();
+            Object [] fila = new Object[columnCount];
+            
+            while (rs.next()){
+                
+                // Se rellena cada posición del array con el valor de las columnas de la tabla. 
+                for (int z = 0; z < columnCount; z++)
+
+                    fila[z] = rs.getObject(z+1); // El primer indice en rs es el 1, no el cero, por eso se suma 1.
+            }
+            String fecha = fila[0].toString();
+            fecha = fecha.split(" ")[0];
+            fechaTF.setText(fecha);
+            totalTF.setText(fila[1].toString());
+            
+            
+            } catch (SQLException ex) {
+                Logger.getLogger(DetalleFactura.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        }
+  
+    }
+    
+    public void cargarCB(){
+        
+        articuloCB.removeAllItems();
+        
+        try {
+            
+            st = con.createStatement();
+            rst = st.executeQuery("SELECT REFERENCIA FROM ARTICULOS");
+    
+            while (rst.next()){
+                
+                articuloCB.addItem(rst.getString("REFERENCIA"));
+            
+            }
+ 
+            rst.close();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(DetalleFactura.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    public void cargarTabla(){
+        
+        try {
+            
+            st = con.createStatement();
+            rs = st.executeQuery("SELECT * FROM view_art_linfac");
+            
+            rsmetadata = rs.getMetaData();
+            //obtenemos el numero de columnas
+            int columnCount = rsmetadata.getColumnCount();
+            
+            //creamos un array donde introduciremos los numbres de las columnas
+            String[] columnNames = new String[columnCount];
+            
+            
+            for(int i = 0; i < columnCount; i++){
+                //recorremos el resultsetmetadata para introducir en el array los nombres de las columnas
+                columnNames[i] = rsmetadata.getColumnName(i+1);
+                
+            }
+            
+            for(int x = 0; x < columnNames.length; x++){
+                //recorremos el array para añadir el nombre ya obtenido de las columnas a nuestra tabla
+                articulos.addColumn(columnNames[x]);
+                
+            }
+            
+            
+            while (rs.next()){
+                
+                Object [] fila = new Object[columnCount]; // Hay tres columnas en la tabla
+
+                // Se rellena cada posición del array con el valor de las columnas de la tabla. 
+                for (int z = 0; z < columnCount; z++)
+
+                    fila[z] = rs.getObject(z+1); // El primer indice en rs es el 1, no el cero, por eso se suma 1.
+
+                // Se añade al modelo la fila completa.
+                articulos.addRow(fila); 
+                
+            }
+            
+            articulosTB.getColumnModel().getColumn(0).setMaxWidth(0);
+            articulosTB.getColumnModel().getColumn(0).setMinWidth(0);
+            articulosTB.getColumnModel().getColumn(0).setPreferredWidth(0);
+            
+            
+            rs.close();
+ 
+        } catch (SQLException ex) {
+            Logger.getLogger(Factura.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
+    public void refrescarTabla(){
+        
+        articulos.setRowCount(0);
+        
+        try{
+            
+            st = con.createStatement();
+            rs = st.executeQuery("SELECT * FROM view_art_linfac");
+            rsmetadata = rs.getMetaData();
+            //obtenemos el numero de columnas
+            int columnCount = rsmetadata.getColumnCount();
+            
+            while (rs.next()){
+                
+                Object [] fila = new Object[columnCount]; // Hay tres columnas en la tabla
+
+                // Se rellena cada posición del array con el valor de las columnas de la tabla. 
+                for (int z = 0; z < columnCount; z++)
+
+                    fila[z] = rs.getObject(z+1); // El primer indice en rs es el 1, no el cero, por eso se suma 1.
+
+                // Se añade al modelo la fila completa.
+                articulos.addRow(fila); 
+                
+            }
+ 
+            rs.close();
+            
+        }catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+    }
+    
     private void aceptarBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aceptarBTActionPerformed
         // TODO add your handling code here:
         
@@ -312,49 +511,228 @@ public class DetalleFactura extends javax.swing.JFrame {
         int total;
         String pagada;
         boolean checked = pagadaCB.isSelected();
-        
+
         fecfacturas = fechaTF.getText();
-        
-        if(totalTF.getText().equals("")){
+
+        if(edit == false){
             
+            if(totalTF.getText().equals("")){
+
             total = 0;
-            
-        }else{
-            
-            total = Integer.parseInt(totalTF.getText());
-            
-        }
-        
-        if(checked){
-            pagada = "S";
-        }else{
-            pagada = "N";
-        }
-        
-        try{
-            
-            if(fecfacturas.equals("") || total < 0 || (pagada.equals("N") && total == 0)){
-                
-                JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos o asegurese que estan correctos");
-                
+
             }else{
-                
-                st = con.createStatement();
-                rst = st.executeQuery("INSERT INTO FACTURAS VALUES("+nfac+",TO_DATE('"+fecfacturas+"'),"+clien+","+total+",'"+pagada+"')");
-                articlePanel.setVisible(true);
-                articulosTB.setEnabled(true);
-                
-                
+
+                total = Integer.parseInt(totalTF.getText());
+
             }
 
-        }catch (SQLException ex) {
-            ex.printStackTrace();
+            if(checked){
+                pagada = "S";
+            }else{
+                pagada = "N";
+            }
+
+            try{
+
+                if(total < 0 || (pagada.equals("N") && total == 0)){
+
+                    JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos o asegurese que estan correctos");
+
+                }else{
+
+                    st = con.createStatement();
+                    rs = st.executeQuery("INSERT INTO FACTURAS VALUES("+nfac+",TO_DATE('"+fecfacturas+"'),"+clien+","+total+",'"+pagada+"')");
+                    articlePanel.setVisible(true);
+                    articulosTB.setEnabled(true);
+                    JOptionPane.showMessageDialog(null, "Factura insertada con exito");
+                    rs.close();
+                    cargarCB();
+                    cargarTabla();
+
+                }
+
+            }catch (SQLException ex) {
+                
+                JOptionPane.showMessageDialog(null, "El formato de fecha debe de ser el siguiente: dd/mm/yyyy");
+            }  
+        }else{
+            
+            if(totalTF.getText().equals("")){
+
+            total = 0;
+
+            }else{
+
+                total = Integer.parseInt(totalTF.getText());
+
+            }
+
+            if(checked){
+                pagada = "S";
+            }else{
+                pagada = "N";
+            }
+
+            try{
+
+                if(total < 0 || (pagada.equals("N") && total == 0)){
+
+                    JOptionPane.showMessageDialog(null, "Por favor, rellene todos los campos o asegurese que estan correctos");
+
+                }else{
+
+                    st = con.createStatement();
+                    rs = st.executeQuery("UPDATE FACTURAS SET FECFACTURA = TO_DATE('"+fecfacturas+"'), TOTAL = "+total+", PAGADA = '"+pagada+"' WHERE NFACTURA = "+nfac);
+                    articlePanel.setVisible(true);
+                    articulosTB.setEnabled(true);
+                    JOptionPane.showMessageDialog(null, "Factura modificada con exito");
+                    rs.close();
+                    cargarCB();
+                    cargarTabla();
+
+                }
+
+            }catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "El formato de fecha debe de ser el siguiente: dd/mm/yyyy");
+            }
+            
         }
-        
-        
         
     }//GEN-LAST:event_aceptarBTActionPerformed
 
+    private void articuloCBMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_articuloCBMouseReleased
+        // TODO add your handling code here:
+ 
+        String ref = articuloCB.getSelectedItem().toString();
+        
+        try {
+            
+            st = con.createStatement();
+            rst = st.executeQuery("SELECT DESCRIPCION FROM ARTICULOS WHERE REFERENCIA = '"+ref+"'");
+    
+            while (rst.next()){
+                
+                descripcionTF.setText(rst.getString("DESCRIPCION"));
+            }
+          
+        } catch (SQLException ex) {
+            Logger.getLogger(DetalleFactura.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_articuloCBMouseReleased
+
+    private void articuloCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_articuloCBActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_articuloCBActionPerformed
+
+    private void addBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBTActionPerformed
+        // TODO add your handling code here:
+        
+        try{
+            String referencia = articuloCB.getSelectedItem().toString();
+            int cantidad = Integer.parseInt(cantidadTF.getText());
+            int descuento = Integer.parseInt(dtoTF.getText());
+
+            if(cantidad < 0 || descuento > 100 || descuento < 0){
+
+                JOptionPane.showMessageDialog(null, "Consulte que los datos introducidos esten correctamente");
+
+            }else{
+
+
+                    st = con.createStatement();
+                    rs = st.executeQuery("INSERT INTO LINFACTURAS VALUES((SELECT MAX(ID)+1 FROM LINFACTURAS),"+nfac+",'"+referencia+"',"+cantidad+","+descuento+")");
+                    JOptionPane.showMessageDialog(null, "Linea de factura insertada con exito");
+                    rs.close();
+                    refrescarTabla();
+
+                }
+            
+        }catch (SQLException ex) {
+                Logger.getLogger(DetalleFactura.class.getName()).log(Level.SEVERE, null, ex);
+            }catch(NumberFormatException e){
+                
+                JOptionPane.showMessageDialog(null, "Cantidad no puede ser 0 y descuento debe oscilar entre 0 y 100");
+                
+            }   
+    }//GEN-LAST:event_addBTActionPerformed
+
+    private void editBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editBTActionPerformed
+        // TODO add your handling code here:
+        
+        try{
+            
+            int selectedRow = articulosTB.getSelectedRow();
+            int id = Integer.parseInt(articulos.getValueAt(selectedRow, 0).toString());
+            String referencia = articuloCB.getSelectedItem().toString();
+            int cantidad = Integer.parseInt(cantidadTF.getText());
+            int descuento = Integer.parseInt(dtoTF.getText());
+            
+            if(cantidad < 0 || descuento > 100 || descuento < 0){
+
+                JOptionPane.showMessageDialog(null, "Consulte que los datos introducidos esten correctamente");
+
+            }else{
+                
+                st = con.createStatement();
+                rs = st.executeQuery("UPDATE LINFACTURAS SET NFACTURA ="+nfac+", REFERENCIA = "+ referencia+", CANTIDAD = "+cantidad+", DESCUENTO = "+descuento+" WHERE ID ="+id);
+                JOptionPane.showMessageDialog(null, "Linea de factura modificada con exito");
+                rs.close();
+                refrescarTabla();
+                
+            }  
+        }catch (SQLException ex) {
+                Logger.getLogger(DetalleFactura.class.getName()).log(Level.SEVERE, null, ex);
+            }catch(ArrayIndexOutOfBoundsException e){
+                
+                JOptionPane.showMessageDialog(null, "Seleccione la fila a modificar");
+                
+            }catch(NumberFormatException e){
+                
+                JOptionPane.showMessageDialog(null, "Compruebe que los valores son los correctos");
+                
+            }
+
+    }//GEN-LAST:event_editBTActionPerformed
+
+    private void articulosTBMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_articulosTBMouseClicked
+        // TODO add your handling code here:
+
+        int selectedRow = articulosTB.getSelectedRow();
+        
+        articuloCB.setSelectedItem(articulos.getValueAt(selectedRow, 1).toString());
+        descripcionTF.setText(articulos.getValueAt(selectedRow, 2).toString());
+        cantidadTF.setText(articulos.getValueAt(selectedRow, 4).toString());
+        dtoTF.setText(articulos.getValueAt(selectedRow, 5).toString());
+        
+    }//GEN-LAST:event_articulosTBMouseClicked
+
+    private void deleteBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBTActionPerformed
+        // TODO add your handling code here:
+        
+        int selectedRow = articulosTB.getSelectedRow();
+        int id = Integer.parseInt(articulos.getValueAt(selectedRow, 0).toString());
+        
+        
+        try {
+                st = con.createStatement();
+                rs = st.executeQuery("DELETE FROM LINFACTURAS WHERE ID ="+id);
+                JOptionPane.showMessageDialog(null, "Linea de factura borrada con exito");
+                rs.close();
+                refrescarTabla();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(DetalleFactura.class.getName()).log(Level.SEVERE, null, ex);
+            }catch(ArrayIndexOutOfBoundsException e){
+                
+                JOptionPane.showMessageDialog(null, "Seleccione la fila a modificar");
+                
+            }
+        
+    }//GEN-LAST:event_deleteBTActionPerformed
+
+        
+    
     /**
      * @param args the command line arguments
      */
@@ -400,6 +778,7 @@ public class DetalleFactura extends javax.swing.JFrame {
     private javax.swing.JTextField cantidadTF;
     private javax.swing.JTextField clienteTF;
     private javax.swing.JButton deleteBT;
+    private javax.swing.JTextField descripcionTF;
     private javax.swing.JTextField dtoTF;
     private javax.swing.JButton editBT;
     private javax.swing.JTextField fechaTF;
@@ -411,6 +790,7 @@ public class DetalleFactura extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField n_FacturaTF;
     private javax.swing.JCheckBox pagadaCB;
